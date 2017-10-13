@@ -11,3 +11,18 @@ setStatusBarColors();
 
 platformNativeScriptDynamic().bootstrapModule(AppModule);
 
+
+firebase.init({
+    //
+    //
+}).then(
+    (instance) => {
+        console.log("Firebase init done!");
+    },
+    (error) => {
+        console.log("Firebase init error: "+error);
+    }
+
+);
+
+
