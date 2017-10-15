@@ -22,6 +22,7 @@ export class ListComponent implements OnInit {
 
   ngOnInit() {
     this.isLoading = true;
+    /*
     this.groceryListService.load()
       .subscribe(loadedGroceries => {
         loadedGroceries.forEach((groceryObject) => {
@@ -29,7 +30,8 @@ export class ListComponent implements OnInit {
         });
         this.isLoading = false;
         this.listLoaded = true;
-      });
+      });*/
+      this.listLoaded = true;
   }
 
   add() {

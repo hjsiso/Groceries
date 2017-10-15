@@ -7,7 +7,7 @@ import { User } from "../../shared/user/user";
 import { UserService } from "../../shared/user/user.service";
 import { setHintColor } from "../../utils/hint-util";
 import { TextField } from "ui/text-field";
-
+import firebase = require("nativescript-plugin-firebase");
 
 
 @Component({
@@ -38,6 +38,19 @@ export class LoginComponent implements OnInit {
 
   submit() {
 
+    firebase.login({
+      type: firebase.LoginType.GOOGLE,
+     
+    }).then(
+        function (result) {
+          JSON.stringify(result);
+        },
+        function (errorMessage) {
+          console.log(errorMessage);
+        }
+    );
+ 
+    /*
     if (!this.user.isValidEmail()) {
       alert("Enter a valid email address.");
       return;
@@ -48,6 +61,7 @@ export class LoginComponent implements OnInit {
     } else {
       this.signUp();
     }
+    */
   }
   login() {
     this.userService.login(this.user)

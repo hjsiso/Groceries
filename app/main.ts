@@ -6,12 +6,6 @@ import { setStatusBarColors } from "./utils/status-bar-util";
 
 import firebase = require("nativescript-plugin-firebase");
 
-
-setStatusBarColors();
-
-platformNativeScriptDynamic().bootstrapModule(AppModule);
-
-
 firebase.init({
     //
     onAuthStateChanged: function(data) { // optional but useful to immediately re-logon the user when he re-visits your app
@@ -30,5 +24,16 @@ firebase.init({
     }
 
 );
+
+setStatusBarColors();
+
+platformNativeScriptDynamic().bootstrapModule(AppModule);
+
+
+
+
+
+
+ 
 
 
