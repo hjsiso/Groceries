@@ -8,6 +8,8 @@ import { UserService } from "../../shared/user/user.service";
 import { setHintColor } from "../../utils/hint-util";
 import { TextField } from "ui/text-field";
 import firebase = require("nativescript-plugin-firebase");
+import { RouterExtensions } from 'nativescript-angular/router/router-extensions';
+import { BackendService } from "../../shared/backend/backend.service";
 
 
 @Component({
@@ -28,29 +30,22 @@ export class LoginComponent implements OnInit {
     this.user.email = "hjsiso@gmail.com";
     this.user.password = "siso77";
   }
-  
+
 
 
   ngOnInit() {
     this.page.actionBarHidden = true;
     this.page.backgroundImage = "res://bg_login";
+
+    console.log("Session usuario ngOnInit LoginComponent: "+ BackendService.token);
+    if(BackendService.token != ""){
+      this.router.navigate(["/list"]);
+    }
   }
 
   submit() {
 
-    firebase.login({
-      type: firebase.LoginType.GOOGLE,
-     
-    }).then(
-        function (result) {
-          JSON.stringify(result);
-        },
-        function (errorMessage) {
-          console.log(errorMessage);
-        }
-    );
- 
-    /*
+
     if (!this.user.isValidEmail()) {
       alert("Enter a valid email address.");
       return;
@@ -61,23 +56,27 @@ export class LoginComponent implements OnInit {
     } else {
       this.signUp();
     }
-    */
+
   }
+
   login() {
     this.userService.login(this.user)
-      .subscribe(
-        () => this.router.navigate(["/list"]),
-        (error) => alert("Unfortunately we could not find your account.")
-      );
+      .then(() => {
+        this.router.navigate(["/list"]);
+      })
+      .catch((message: any) => {
+        alert("Unfortunately we could not find your account.")
+      });
   }
+
   signUp() {
     this.userService.register(this.user)
       .subscribe(
-        () => {
-          alert("Your account was successfully created.");
-          this.toggleDisplay();
-        },
-        () => alert("Unfortunately we were unable to create your account.")
+      () => {
+        alert("Your account was successfully created.");
+        this.toggleDisplay();
+      },
+      () => alert("Unfortunately we were unable to create your account.")
       );
   }
   toggleDisplay() {
@@ -92,11 +91,11 @@ export class LoginComponent implements OnInit {
   setTextFieldColors() {
     let emailTextField = <TextField>this.email.nativeElement;
     let passwordTextField = <TextField>this.password.nativeElement;
-  
+
     let mainTextColor = new Color(this.isLoggingIn ? "black" : "#C4AFB4");
     emailTextField.color = mainTextColor;
     passwordTextField.color = mainTextColor;
-  
+
     let hintColor = new Color(this.isLoggingIn ? "#ACA6A7" : "#C4AFB4");
     setHintColor({ view: emailTextField, color: hintColor });
     setHintColor({ view: passwordTextField, color: hintColor });

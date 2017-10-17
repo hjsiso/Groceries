@@ -3,32 +3,25 @@ import { Http, Headers, Response } from "@angular/http";
 import { Observable } from "rxjs/Rx";
 import "rxjs/add/operator/do";
 import "rxjs/add/operator/map";
-
+import { BackendService } from "../../shared/backend/backend.service";
 import { User } from "./user";
 import { Config } from "../config";
+import firebase = require("nativescript-plugin-firebase");
 
 @Injectable()
 export class UserService {
-  constructor(private http: Http) {}
+  constructor(private http: Http) { }
 
   login(user: User) {
-    let headers = new Headers();
-    headers.append("Content-Type", "application/json");
-  
-    return this.http.post(
-      Config.apiUrl + "oauth/token",
-      JSON.stringify({
-        username: user.email,
-        password: user.password,
-        grant_type: "password"
-      }),
-      { headers: headers }
-    )
-    .map(response => response.json())
-    .do(data => {
-      Config.token = data.Result.access_token;
-    })
-    .catch(this.handleErrors);
+    return firebase.login({
+      type: firebase.LoginType.GOOGLE,
+
+    }).then((result: any) => {
+      BackendService.token = result.uid;
+      return JSON.stringify(result);
+    }, (errorMessage: any) => {
+      alert(errorMessage);
+    });
   }
 
   register(user: User) {
@@ -44,7 +37,7 @@ export class UserService {
       }),
       { headers: headers }
     )
-    .catch(this.handleErrors);
+      .catch(this.handleErrors);
   }
 
   handleErrors(error: Response) {
