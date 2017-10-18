@@ -11,7 +11,7 @@ import firebase = require("nativescript-plugin-firebase");
 export class GroceryListService {
   constructor(private ngZone: NgZone) {}
 
-
+  maxElement: number = 5;
   groceries: BehaviorSubject<Array<Grocery>> = new BehaviorSubject([]);
   private _allGroceries: Array<Grocery> = [];
 
@@ -64,17 +64,8 @@ export class GroceryListService {
   );
   }
 
-  delete(id: string) {
-    return "";
-    /*let headers = new Headers();
-    headers.append("Authorization", "Bearer " + Config.token);
-    headers.append("Content-Type", "application/json");
-  
-    return this.http.delete(
-      Config.apiUrl + "Groceries/" + id,
-      { headers: headers }
-    )
-    .map(res => res.json())
-    .catch(this.handleErrors);*/
+  delete(grocery: Grocery) {
+    return firebase.remove("/Groceries/"+grocery.id+"")
+      .catch(this.handleErrors);
   }
 }
