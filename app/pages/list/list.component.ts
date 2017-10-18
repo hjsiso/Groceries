@@ -1,9 +1,11 @@
 import { Component, ElementRef, NgZone, OnInit, ViewChild } from "@angular/core";
 import { TextField } from "ui/text-field";
-
+import { Observable } from "rxjs/Observable";
 import { Grocery} from "../../shared/grocery/grocery";
 import { GroceryListService } from "../../shared/grocery/grocery-list.service";
 import * as SocialShare from "nativescript-social-share";
+import { Router, ActivatedRoute } from "@angular/router";
+
 
 @Component({
   selector: "list",
@@ -12,26 +14,33 @@ import * as SocialShare from "nativescript-social-share";
   providers: [GroceryListService]
 })
 export class ListComponent implements OnInit {
+  public groceries$: Observable<any>;
+  private sub: any;
   groceryList: Array<Grocery> = [];
   grocery = "";
   isLoading = false;
   listLoaded = false;
   @ViewChild("groceryTextField") groceryTextField: ElementRef;
 
-  constructor(private groceryListService: GroceryListService, private zone: NgZone) {}
+  constructor(private groceryListService: GroceryListService, private zone: NgZone, private activatedRoute: ActivatedRoute,
+    private router: Router) {}
 
   ngOnInit() {
     this.isLoading = true;
-    /*
-    this.groceryListService.load()
-      .subscribe(loadedGroceries => {
-        loadedGroceries.forEach((groceryObject) => {
-          this.groceryList.unshift(groceryObject);
-        });
+    this.sub = this.activatedRoute.params.subscribe((params: any) => {
+      this.groceries$ = <any>this.groceryListService.load();
+      /*
+      this.groceryListService.load()
+        .subscribe(loadedGroceries => {
+          loadedGroceries.forEach((groceryObject) => {
+            this.groceryList.unshift(groceryObject);
+          });
+          this.isLoading = false;
+          this.listLoaded = true;
+        });*/
+     })
         this.isLoading = false;
         this.listLoaded = true;
-      });*/
-      this.listLoaded = true;
   }
 
   add() {
@@ -45,30 +54,27 @@ export class ListComponent implements OnInit {
     textField.dismissSoftInput();
   
     this.groceryListService.add(this.grocery)
-      .subscribe(
-        groceryObject => {
-          this.groceryList.unshift(groceryObject);
-          this.grocery = "";
-        },
-        () => {
-          alert({
-            message: "An error occurred while adding an item to your list.",
-            okButtonText: "OK"
-          });
-          this.grocery = "";
-        }
-      )
+    .then(() => {
+      this.grocery = "";
+    })
+    .catch((message: any) => {
+      alert({
+        message: "An error occurred while adding an item to your list.",
+        okButtonText: "OK"
+      });
+      this.grocery = "";
+    });
   }
 
   delete(grocery: Grocery) {
-    this.groceryListService.delete(grocery.id)
+    /*this.groceryListService.delete(grocery.id)
       .subscribe(() => {
         // Running the array splice in a zone ensures that change detection gets triggered.
         this.zone.run(() => {
           let index = this.groceryList.indexOf(grocery);
           this.groceryList.splice(index, 1);
         });
-      });
+      });*/
   }
 
   share() {

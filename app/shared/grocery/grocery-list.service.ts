@@ -1,31 +1,49 @@
-import { Injectable } from "@angular/core";
+import { Injectable, NgZone } from "@angular/core";
 import { Http, Headers, Response } from "@angular/http";
 import { Observable } from "rxjs/Rx";
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import "rxjs/add/operator/map";
 
 import { Config } from "../config";
 import { Grocery } from "./grocery";
+import firebase = require("nativescript-plugin-firebase");
 
 @Injectable()
 export class GroceryListService {
-  constructor(private http: Http) {}
+  constructor(private http: Http, private ngZone: NgZone) {}
 
-  load() {
-    let headers = new Headers();
-    headers.append("Authorization", "Bearer " + Config.token);
 
-    return this.http.get(Config.apiUrl + "Groceries", {
-      headers: headers
-    })
-    .map(res => res.json())
-    .map(data => {
-      let groceryList = [];
-      data.Result.forEach((grocery) => {
-        groceryList.push(new Grocery(grocery.Id, grocery.Name));
-      });
-      return groceryList;
-    })
-    .catch(this.handleErrors);
+  groceries: BehaviorSubject<Array<Grocery>> = new BehaviorSubject([]);
+  private _allGroceries: Array<Grocery> = [];
+
+  load(): Observable<any> {
+    return new Observable((observer: any) => {
+      let path = 'Groceries';
+      //this.loader.show({ message: 'Getting recipes...' });
+      console.log("##### groceries load ");
+      let onValueEvent = (snapshot: any) => {
+        this.ngZone.run(() => {
+          let results = this.handleSnapshot(snapshot.value);
+          observer.next(results);
+        });
+      };
+      firebase.addValueEventListener(onValueEvent, `/${path}`);
+    }).share();
+  }
+
+  handleSnapshot(data: any) {
+    //empty array, then refill and filter
+    this._allGroceries = [];
+    if (data) {
+      for (let id in data) {
+        let result = (<any>Object).assign({ id: id }, data[id]);
+       
+          this._allGroceries.push(result);
+        
+      }
+    }
+    console.log("All Groceries: "+this._allGroceries);
+    return this._allGroceries;
   }
 
   handleErrors(error: Response) {
@@ -34,24 +52,21 @@ export class GroceryListService {
   }
 
   add(name: string) {
-    let headers = new Headers();
-    headers.append("Authorization", "Bearer " + Config.token);
-    headers.append("Content-Type", "application/json");
-  
-    return this.http.post(
-      Config.apiUrl + "Groceries",
-      JSON.stringify({ Name: name }),
-      { headers: headers }
-    )
-    .map(res => res.json())
-    .map(data => {
-      return new Grocery(data.Result.Id, name);
-    })
-    .catch(this.handleErrors);
+    return   firebase.push(
+      '/Groceries',
+      {
+        'name': name 
+      }
+  ).then(
+      function (result) {
+        console.log("created key: " + result.key);
+      }
+  );
   }
 
   delete(id: string) {
-    let headers = new Headers();
+    return "";
+    /*let headers = new Headers();
     headers.append("Authorization", "Bearer " + Config.token);
     headers.append("Content-Type", "application/json");
   
@@ -60,6 +75,6 @@ export class GroceryListService {
       { headers: headers }
     )
     .map(res => res.json())
-    .catch(this.handleErrors);
+    .catch(this.handleErrors);*/
   }
 }
