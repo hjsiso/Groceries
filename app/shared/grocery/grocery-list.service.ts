@@ -1,5 +1,4 @@
 import { Injectable, NgZone } from "@angular/core";
-import { Http, Headers, Response } from "@angular/http";
 import { Observable } from "rxjs/Rx";
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import "rxjs/add/operator/map";
@@ -10,7 +9,7 @@ import firebase = require("nativescript-plugin-firebase");
 
 @Injectable()
 export class GroceryListService {
-  constructor(private http: Http, private ngZone: NgZone) {}
+  constructor(private ngZone: NgZone) {}
 
 
   groceries: BehaviorSubject<Array<Grocery>> = new BehaviorSubject([]);
@@ -24,6 +23,7 @@ export class GroceryListService {
       let onValueEvent = (snapshot: any) => {
         this.ngZone.run(() => {
           let results = this.handleSnapshot(snapshot.value);
+          console.log(JSON.stringify(results))
           observer.next(results);
         });
       };

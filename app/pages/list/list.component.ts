@@ -1,4 +1,4 @@
-import { Component, ElementRef, NgZone, OnInit, ViewChild } from "@angular/core";
+import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
 import { TextField } from "ui/text-field";
 import { Observable } from "rxjs/Observable";
 import { Grocery} from "../../shared/grocery/grocery";
@@ -22,25 +22,14 @@ export class ListComponent implements OnInit {
   listLoaded = false;
   @ViewChild("groceryTextField") groceryTextField: ElementRef;
 
-  constructor(private groceryListService: GroceryListService, private zone: NgZone, private activatedRoute: ActivatedRoute,
-    private router: Router) {}
+  constructor(private groceryListService: GroceryListService, private router: Router) {}
 
   ngOnInit() {
     this.isLoading = true;
-    this.sub = this.activatedRoute.params.subscribe((params: any) => {
-      this.groceries$ = <any>this.groceryListService.load();
-      /*
-      this.groceryListService.load()
-        .subscribe(loadedGroceries => {
-          loadedGroceries.forEach((groceryObject) => {
-            this.groceryList.unshift(groceryObject);
-          });
-          this.isLoading = false;
-          this.listLoaded = true;
-        });*/
-     })
-        this.isLoading = false;
-        this.listLoaded = true;
+    
+    this.groceries$ = <any>this.groceryListService.load();
+    this.isLoading = false;
+    this.listLoaded = true;
   }
 
   add() {
