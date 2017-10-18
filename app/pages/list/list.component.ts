@@ -6,6 +6,10 @@ import { GroceryListService } from "../../shared/grocery/grocery-list.service";
 import * as SocialShare from "nativescript-social-share";
 import { Router, ActivatedRoute } from "@angular/router";
 
+import * as application from "application";
+import { AndroidApplication, AndroidActivityBackPressedEventData } from "application";
+import { isAndroid } from "platform";
+
 
 @Component({
   selector: "list",
@@ -26,10 +30,20 @@ export class ListComponent implements OnInit {
 
   ngOnInit() {
     this.isLoading = true;
+
+    application.android.on(AndroidApplication.activityBackPressedEvent, (data: AndroidActivityBackPressedEventData) => {
+      if (this.router.isActive("/list", false)) {
+        alert("Not back");
+        data.cancel = true; // prevents default back button behavior
+        //this.logout();
+      }
+    });
     
     this.groceries$ = <any>this.groceryListService.load();
     this.isLoading = false;
     this.listLoaded = true;
+
+
   }
 
   add() {
